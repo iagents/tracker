@@ -90,8 +90,10 @@ the use of this software, even if advised of the possibility of such damage.
 #include "labdata.hpp"
 #endif
 
-// Constructor
-KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
+KCFTracker::KCFTracker(bool hog, 
+		       bool fixed_window, 
+		       bool multiscale, 
+		       bool lab)
 {
   // Common parameters for all instances of KCF
   // regularizer
@@ -106,6 +108,7 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
     // VOT
     interp_factor = 0.012;
     sigma = 0.6; 
+
     // TPAMI
     //interp_factor = 0.02;
     //sigma = 0.5; 
@@ -121,19 +124,17 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
       _labfeatures = true;
       _labCentroids = cv::Mat(nClusters, 3, CV_32FC1, &data);
       cell_sizeQ = cell_size*cell_size;
-    }
-    else{
+    } else{
       _labfeatures = false;
     }
-  }
-  else {   // RAW
+  } else {   // RAW
     interp_factor = 0.075;
     sigma = 0.2; 
     cell_size = 1;
     _hogfeatures = false;
     
     if (lab) {
-      printf("Lab features are only used with HOG features.\n");
+      std::cout << "Lab features are only used with HOG features." << std::endl;
       _labfeatures = false;
     }
   }
@@ -163,8 +164,12 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
 void KCFTracker::init(const cv::Rect &roi, cv::Mat image)
 {
     _roi = roi;
+
     assert(roi.width >= 0 && roi.height >= 0);
+
+    // extract features
     _tmpl = getFeatures(image, 1);
+
     _prob = createGaussianPeak(size_patch[0], size_patch[1]);
     _alphaf = cv::Mat(size_patch[0], size_patch[1], CV_32FC2, float(0));
     //_num = cv::Mat(size_patch[0], size_patch[1], CV_32FC2, float(0));
@@ -186,8 +191,10 @@ cv::Rect KCFTracker::update(cv::Mat image)
   float peak_value;
   cv::Point2f res = detect(_tmpl, getFeatures(image, 0, 1.0f), peak_value);
   
+  // if we're looking for the target at a multiple scale, execute
+  // detect() at 1.0f / scale step, 1.0f, scale_step, e.g.) 0.95, 1.00, 1.05
   if (scale_step != 1) {
-    // Test at a smaller _scale
+    // Test at a smaller _scale, 1.0f / scale_step ~ 0.95
     float new_peak_value;
     cv::Point2f new_res = detect(_tmpl, getFeatures(image, 0, 1.0f / scale_step), new_peak_value);
     
@@ -199,7 +206,7 @@ cv::Rect KCFTracker::update(cv::Mat image)
             _roi.height /= scale_step;
     }
     
-    // Test at a bigger _scale
+    // Test at a bigger _scale, 1.05f
     new_res = detect(_tmpl, getFeatures(image, 0, scale_step), new_peak_value);
     
     if (scale_weight * new_peak_value > peak_value) {
@@ -341,7 +348,9 @@ cv::Mat KCFTracker::createGaussianPeak(int sizey, int sizex)
 }
 
 // Obtain sub-window from image, with replication-padding and extract features
-cv::Mat KCFTracker::getFeatures(const cv::Mat & image, bool inithann, float scale_adjust)
+cv::Mat KCFTracker::getFeatures(const cv::Mat & image, 
+				bool inithann, 
+				float scale_adjust)
 {
   cv::Rect extracted_roi;
 
@@ -360,8 +369,7 @@ cv::Mat KCFTracker::getFeatures(const cv::Mat & image, bool inithann, float scal
       
       _tmpl_sz.width = padded_w / _scale;
       _tmpl_sz.height = padded_h / _scale;
-    }
-    else {  //No template size given, use ROI size
+    } else {  //No template size given, use ROI size
       _tmpl_sz.width = padded_w;
       _tmpl_sz.height = padded_h;
       _scale = 1;
@@ -382,8 +390,7 @@ cv::Mat KCFTracker::getFeatures(const cv::Mat & image, bool inithann, float scal
       // Round to cell size and also make it even
       _tmpl_sz.width = ( ( (int)(_tmpl_sz.width / (2 * cell_size)) ) * 2 * cell_size ) + cell_size*2;
       _tmpl_sz.height = ( ( (int)(_tmpl_sz.height / (2 * cell_size)) ) * 2 * cell_size ) + cell_size*2;
-    }
-    else {  //Make number of pixels even (helps with some logic involving half-dimensions)
+    } else {  //Make number of pixels even (helps with some logic involving half-dimensions)
       _tmpl_sz.width = (_tmpl_sz.width / 2) * 2;
       _tmpl_sz.height = (_tmpl_sz.height / 2) * 2;
     }

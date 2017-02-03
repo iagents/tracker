@@ -149,8 +149,7 @@ int main(int argc, char* argv[]){
 		 Point( xMin+width, yMin+height), 
 		 output_box_color, box_thickness, 8 );
       resultsFile << xMin << "," << yMin << "," << width << "," << height << std::endl;
-    } 
-    else { // otherwise, update
+    } else { // otherwise, update
       result = tracker.update(frame);
       rectangle( frame, 
 		 Point( result.x, result.y ), 
@@ -166,6 +165,8 @@ int main(int argc, char* argv[]){
       waitKey(1);
       //}
   }
+
+  // Measuring the elapsed time
   double elapsed_time = double(clock() - begin) / CLOCKS_PER_SEC;
   auto finish = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = finish - start;
@@ -207,7 +208,6 @@ void GetFilesInDirectory(const string directory_absolute_path,
     {
       std::string file_name = directory_absolute_path + 
 	itr->path().filename().string();
-      //std::cout << file_name << std::endl;
       filename_list.push_back(file_name);
     } else {
       continue;

@@ -45,9 +45,9 @@ Outputs of update():
    cv::Rect with target positions for the current frame
 
 
-By downloading, copying, installing or using the software you agree to this license.
-If you do not agree to this license, do not download, install,
-copy or use the software.
+By downloading, copying, installing or using the software you agree to
+this license.  If you do not agree to this license, do not download,
+install, copy or use the software.
 
 
                           License Agreement
@@ -68,16 +68,18 @@ are permitted provided that the following conditions are met:
     may be used to endorse or promote products derived from this software
     without specific prior written permission.
 
-This software is provided by the copyright holders and contributors "as is" and
-any express or implied warranties, including, but not limited to, the implied
-warranties of merchantability and fitness for a particular purpose are disclaimed.
-In no event shall copyright holders or contributors be liable for any direct,
-indirect, incidental, special, exemplary, or consequential damages
-(including, but not limited to, procurement of substitute goods or services;
-loss of use, data, or profits; or business interruption) however caused
-and on any theory of liability, whether in contract, strict liability,
-or tort (including negligence or otherwise) arising in any way out of
-the use of this software, even if advised of the possibility of such damage.
+This software is provided by the copyright holders and contributors
+"as is" and any express or implied warranties, including, but not
+limited to, the implied warranties of merchantability and fitness for
+a particular purpose are disclaimed.  In no event shall copyright
+holders or contributors be liable for any direct, indirect,
+incidental, special, exemplary, or consequential damages (including,
+but not limited to, procurement of substitute goods or services; loss
+of use, data, or profits; or business interruption) however caused and
+on any theory of liability, whether in contract, strict liability, or
+tort (including negligence or otherwise) arising in any way out of the
+use of this software, even if advised of the possibility of such
+damage.
  */
 
 #pragma once
@@ -91,61 +93,63 @@ the use of this software, even if advised of the possibility of such damage.
 class KCFTracker : public Tracker
 {
 public:
-    // Constructor
-    KCFTracker(bool hog = true, bool fixed_window = true, bool multiscale = true, bool lab = true);
+  // Constructor
+  // 
+  // \param[in] hog Flag of indicating whether hog feature is used.
+  KCFTracker(bool hog = true, bool fixed_window = true, bool multiscale = true, bool lab = true);
 
-    // Initialize tracker 
-    virtual void init(const cv::Rect &roi, cv::Mat image);
+  // Initialize tracker 
+  virtual void init(const cv::Rect &roi, cv::Mat image);
     
-    // Update position based on the new frame
-    virtual cv::Rect update(cv::Mat image);
+  // Update position based on the new frame
+  virtual cv::Rect update(cv::Mat image);
 
-    float interp_factor; // linear interpolation factor for adaptation
-    float sigma; // gaussian kernel bandwidth
-    float lambda; // regularization
-    int cell_size; // HOG cell size
-    int cell_sizeQ; // cell size^2, to avoid repeated operations
-    float padding; // extra area surrounding the target
-    float output_sigma_factor; // bandwidth of gaussian target
-    int template_size; // template size
-    float scale_step; // scale step for multi-scale estimation
-    float scale_weight;  // to downweight detection scores of other scales for added stability
-
+  float interp_factor; // linear interpolation factor for adaptation
+  float sigma; // gaussian kernel bandwidth
+  float lambda; // regularization
+  int cell_size; // HOG cell size
+  int cell_sizeQ; // cell size^2, to avoid repeated operations
+  float padding; // extra area surrounding the target
+  float output_sigma_factor; // bandwidth of gaussian target
+  int template_size; // template size
+  float scale_step; // scale step for multi-scale estimation
+  float scale_weight;  // to downweight detection scores of other scales for added stability
+  
 protected:
-    // Detect object in the current frame.
-    cv::Point2f detect(cv::Mat z, cv::Mat x, float &peak_value);
+  // Detect object in the current frame.
+  cv::Point2f detect(cv::Mat z, cv::Mat x, float &peak_value);
 
-    // train tracker with a single image
-    void train(cv::Mat x, float train_interp_factor);
+  // train tracker with a single image
+  void train(cv::Mat x, float train_interp_factor);
 
-    // Evaluates a Gaussian kernel with bandwidth SIGMA for all relative shifts between input images X and Y, which must both be MxN. They must    also be periodic (ie., pre-processed with a cosine window).
-    cv::Mat gaussianCorrelation(cv::Mat x1, cv::Mat x2);
-
-    // Create Gaussian Peak. Function called only in the first frame.
-    cv::Mat createGaussianPeak(int sizey, int sizex);
-
-    // Obtain sub-window from image, with replication-padding and extract features
-    cv::Mat getFeatures(const cv::Mat & image, bool inithann, float scale_adjust = 1.0f);
-
-    // Initialize Hanning window. Function called only in the first frame.
-    void createHanningMats();
-
-    // Calculate sub-pixel peak for one dimension
-    float subPixelPeak(float left, float center, float right);
-
-    cv::Mat _alphaf;
-    cv::Mat _prob;
-    cv::Mat _tmpl;
-    cv::Mat _num;
-    cv::Mat _den;
-    cv::Mat _labCentroids;
-
+  // Evaluates a Gaussian kernel with bandwidth SIGMA for all relative shifts between input images X and Y, which must both be MxN. They must    also be periodic (ie., pre-processed with a cosine window).
+  cv::Mat gaussianCorrelation(cv::Mat x1, cv::Mat x2);
+  
+  // Create Gaussian Peak. Function called only in the first frame.
+  cv::Mat createGaussianPeak(int sizey, int sizex);
+  
+  // Obtain sub-window from image, with replication-padding and extract features
+  cv::Mat getFeatures(const cv::Mat & image, bool inithann, float scale_adjust = 1.0f);
+  
+  // Initialize Hanning window. Function called only in the first frame.
+  void createHanningMats();
+  
+  // Calculate sub-pixel peak for one dimension
+  float subPixelPeak(float left, float center, float right);
+  
+  cv::Mat _alphaf;
+  cv::Mat _prob;
+  cv::Mat _tmpl;
+  cv::Mat _num;
+  cv::Mat _den;
+  cv::Mat _labCentroids;
+  
 private:
-    int size_patch[3];
-    cv::Mat hann;
-    cv::Size _tmpl_sz;
-    float _scale;
-    int _gaussian_size;
-    bool _hogfeatures;
-    bool _labfeatures;
+  int size_patch[3];
+  cv::Mat hann;
+  cv::Size _tmpl_sz;
+  float _scale;
+  int _gaussian_size;
+  bool _hogfeatures;
+  bool _labfeatures;
 };
