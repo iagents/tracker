@@ -1,3 +1,5 @@
+/// @desc A wrapper to run KCF
+///
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -23,7 +25,6 @@ using namespace cv;
 using namespace boost::filesystem;
 
 int main(int argc, char* argv[]){
-
   if (argc > 5 || argc == 1){
     DisplayUsage();
     return -1;
@@ -62,15 +63,19 @@ int main(int argc, char* argv[]){
   // Create KCFTracker object
   KCFTracker tracker(HOG, FIXEDWINDOW, MULTISCALE, LAB);
 
-  // Frame readed
+  // Image frame to read
   Mat frame;
 
-  // Tracker results
+  // Tracker results, <x, y, w, h>
   Rect result;
 
+  // Read the names of image files
   std::vector<std::string> image_file_names;
   GetFilesInDirectory(data_directory_path+"img/", image_file_names);
   std::cout << "[info] Number of input images=" << image_file_names.size() << std::endl;
+
+  // Need to sort. Otherwise the images do not read in the
+  // chronological order.
   sort(image_file_names.begin(), image_file_names.end());
 
   // Read groundtruth for the 1st frame
@@ -107,8 +112,6 @@ int main(int argc, char* argv[]){
   float width = max(x1, max(x2, max(x3, x4))) - xMin;
   float height = max(y1, max(y2, max(y3, y4))) - yMin;
 
-  std::cout << "[info] xMin=" << xMin << ", yMin=" << yMin << ", width=" << width << ", height=" << height << std::endl;
-  
   // Write Results
   ofstream resultsFile;
   string resultsPath = "output.txt";

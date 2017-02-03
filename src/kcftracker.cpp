@@ -1,8 +1,9 @@
 /*
-
-Tracker based on Kernelized Correlation Filter (KCF) [1] and Circulant Structure with Kernels (CSK) [2].
-CSK is implemented by using raw gray level features, since it is a single-channel filter.
-KCF is implemented by using HOG features (the default), since it extends CSK to multiple channels.
+Tracker based on Kernelized Correlation Filter (KCF) [1] and Circulant
+Structure with Kernels (CSK) [2].  CSK is implemented by using raw
+gray level features, since it is a single-channel filter.  KCF is
+implemented by using HOG features (the default), since it extends CSK
+to multiple channels.
 
 [1] J. F. Henriques, R. Caseiro, P. Martins, J. Batista,
 "High-Speed Tracking with Kernelized Correlation Filters", TPAMI 2015.
@@ -16,11 +17,13 @@ Institute of Systems and Robotics - University of Coimbra / Department Augmented
 
 
 Constructor parameters, all boolean:
-    hog: use HOG features (default), otherwise use raw pixels
-    fixed_window: fix window size (default), otherwise use ROI size (slower but more accurate)
-    multiscale: use multi-scale tracking (default; cannot be used with fixed_window = true)
+
+hog: use HOG features (default), otherwise use raw pixels
+fixed_window: fix window size (default), otherwise use ROI size (slower but more accurate)
+multiscale: use multi-scale tracking (default; cannot be used with fixed_window = true)
 
 Default values are set for all properties of the tracker depending on the above choices.
+
 Their values can be customized further before calling init():
     interp_factor: linear interpolation factor for adaptation
     sigma: gaussian kernel bandwidth
@@ -43,7 +46,6 @@ Inputs to update():
 
 Outputs of update():
    cv::Rect with target positions for the current frame
-
 
 By downloading, copying, installing or using the software you agree to this license.
 If you do not agree to this license, do not download, install,
@@ -91,12 +93,15 @@ the use of this software, even if advised of the possibility of such damage.
 // Constructor
 KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
 {
-  // Parameters equal in all cases
+  // Common parameters for all instances of KCF
+  // regularizer
   lambda = 0.0001;
-  padding = 2.5; 
+  padding = 2.5;
+ 
   //output_sigma_factor = 0.1;
   output_sigma_factor = 0.125;
 
+  // If "hog" is used as feature
   if (hog) {    // HOG
     // VOT
     interp_factor = 0.012;
@@ -132,7 +137,6 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
       _labfeatures = false;
     }
   }
-  
   
   if (multiscale) { // multiscale
     template_size = 96;
@@ -178,7 +182,6 @@ cv::Rect KCFTracker::update(cv::Mat image)
   
   float cx = _roi.x + _roi.width / 2.0f;
   float cy = _roi.y + _roi.height / 2.0f;
-  
   
   float peak_value;
   cv::Point2f res = detect(_tmpl, getFeatures(image, 0, 1.0f), peak_value);
