@@ -1,1 +1,1 @@
-# OpenCV example
+# example
