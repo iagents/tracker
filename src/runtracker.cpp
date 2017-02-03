@@ -121,7 +121,8 @@ int main(int argc, char* argv[]){
   int nFrames = 0;
 
   clock_t begin = clock();
-  
+  auto start = std::chrono::high_resolution_clock::now();
+
   // output box property
   cv::Scalar output_box_color(0, 0, 255);
   int box_thickness = 2;
@@ -132,7 +133,9 @@ int main(int argc, char* argv[]){
   for( std::vector<std::string>::const_iterator itr = image_file_names.begin();
        itr != image_file_names.end(); ++itr ) {
 
-    std::cout << "[info] processing, " << (*itr) << std::endl;
+    std::cout << "[info] processing (" << (nFrames+1)
+	      << "/" << image_file_names.size() << "), "
+	      << (*itr) << std::endl;
 
     // read image
     frame = imread((*itr), CV_LOAD_IMAGE_COLOR);
@@ -164,8 +167,14 @@ int main(int argc, char* argv[]){
       //}
   }
   double elapsed_time = double(clock() - begin) / CLOCKS_PER_SEC;
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
   
-  std::cout << "[info] Elapsed time=" << elapsed_time 
+  std::cout << "[info] Elapsed time (CPU time)=" << elapsed_time 
+	    << ", number of images=" << image_file_names.size()
+	    << ", elapsed time per frame in sec=" << elapsed_time / image_file_names.size() << std::endl;
+
+  std::cout << "[info] Elapsed time (Wall clock)=" << elapsed.count()
 	    << ", number of images=" << image_file_names.size()
 	    << ", elapsed time per frame in sec=" << elapsed_time / image_file_names.size() << std::endl;
   
