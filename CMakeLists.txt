@@ -4,7 +4,9 @@ project(kcf)
 
 find_package(OpenCV REQUIRED)
 
-find_package(Qt5 REQUIRED COMPONENTS Gui Widgets Test Concurrent OpenGL)
+set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt5.7.0/5.7/gcc_64)
+
+#find_package(Qt5 REQUIRED COMPONENTS Gui Widgets Test Concurrent OpenGL)
 
 find_package(Boost 1.54 COMPONENTS filesystem)
 
